@@ -1,13 +1,52 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Hello World!</title>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   </head>
   <body>
-    <h1>💖 Hello World!</h1>
-    <p>Welcome to your Electron application.</p>
+    <header>
+      <button class="header-btn">
+        <img src="assets/icons/settings-sliders.svg" width="20px" draggable="false" />
+      </button>
+      <div class="actions">
+        <button class="header-btn">
+          <img
+            alt="chrome browser icon"
+            srcset="assets/icons/chrome.svg"
+            draggable="false"
+            width="24px"
+          />
+        </button>
+        <button class="header-btn">
+          <img
+            alt="wikipedia icon"
+            srcset="assets/icons/wikipedia.svg"
+            draggable="false"
+            width="24px"
+          />
+        </button>
+      </div>
+    </header>
+
+    <section class="search-input">
+      <input type="text" autofocus class="search-text" placeholder="">
+      <div>
+        <span>
+          <img alt="sound" class="sound-search" src="assets/icons/volume.svg" draggable="false" />
+          <img alt="copy" class="copy-search" src="assets/icons/copy.svg" draggable="false" />
+        </span>
+        <img
+          alt="close"
+          class="clear-search"
+          src="assets/icons/circle-close.svg"
+          draggable="false"
+        />
+      </div>
+    </section>
+    <div class="container">
+      
+    </div>
     <script type="module" src="/src/renderer.ts"></script>
   </body>
 </html>

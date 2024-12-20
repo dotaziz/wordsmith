@@ -1,2 +1,8 @@
-// See the Electron documentation for details on how to use preload scripts:
-// https://www.electronjs.org/docs/latest/tutorial/process-model#preload-scripts
+import { contextBridge, ipcRenderer } from 'electron'
+import { ElectronAPI } from './interface'
+
+
+contextBridge.exposeInMainWorld('electronAPI', {
+    query: (word: string)=> ipcRenderer.invoke("dictionary:query",word),
+    openSettings: () => ipcRenderer.invoke('window:open-settings')
+} as ElectronAPI)

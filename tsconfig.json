@@ -9,7 +9,10 @@
     "sourceMap": true,
     "baseUrl": ".",
     "outDir": "dist",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,    
     "moduleResolution": "node",
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    
   }
 }
