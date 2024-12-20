@@ -90,3 +90,6 @@ typings/
 
 # Electron-Forge
 out/
+
+# db for testing
+*.db
