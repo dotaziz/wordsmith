@@ -11,7 +11,7 @@ const soundSearch = document.querySelector(
   ".sound-search"
 ) as HTMLButtonElement;
 const settingsBtn = document.querySelector(
-  ".settings-btn"
+  ".settings"
 ) as HTMLButtonElement;
 
 const container = document.querySelector("div.container") as HTMLDivElement;
