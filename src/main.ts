@@ -14,15 +14,12 @@ import {
 import path from "path";
 import { execSync } from "node:child_process";
 import { initializeIpcHandlers } from "./ipcHandlers";
-import * as wordnet from "wordnet";
+// import * as wordnet from "wordnet";
 
 (async () => {
   // await wordnet.init('/home/aziz0x/Downloads/owen/oewn2024');
-
   // await wordnet.list();
-
   // console.log(results, "okay")
-
 })();
 // Right now this specifies a folder where database files will be stored.
 // export const defaultDbFolder = app.getPath('downloads');
@@ -49,59 +46,74 @@ export class AppState {
     const appState = AppState.getInstance();
     initializeIpcHandlers();
 
-    app
-      .whenReady()
-      .then(() => {
-        console.log("App is ready");
-        appState.createWindow();
+    try {
+      await app.whenReady();
+      console.log("App is ready");
+      appState.createWindow();
 
-        globalShortcut.register("Control+Shift+W", async () => {
-          const selection = execSync("xclip -o").toString();
+      globalShortcut.register("Control+Shift+W", async () => {
+        /**
+         * Strange behaviour.
+         * 
+         * putting console.log make the global shortcut to respond faster.
+         * without console.log the response delays abit
+         */
+        console.log()
+        let selection: string;
 
-          const resp = await database.query(selection);
-
-          let notify: Notification;
-
-          if (!resp) {
-            notify = new Notification({
-              title: "Not found",
-              body: `${selection} does not match word in dictionary`,
-            });
-          } else {
-            notify = new Notification({
-              icon: nativeImage.createFromPath(
-                app.getAppPath() + "/assets/favicon.png"
-              ),
-              title: resp.word,
-              body: resp.meanings[0].definitions[0].definition,
-            });
-            console.log(resp);
-          }
-
-          notify.show();
-
-          notify.addListener("click", (e) => {
-            console.log(e);
-          });
-        });
-
-        // Initialize auto-updater in production
-        if (app.isPackaged) {
-          // initAutoUpdater()
+        if (process.platform === "win32") {
+          //todo: add xclip alternate on windows
         } else {
-          console.log("Running in development mode - auto-updater disabled");
+          selection = execSync("xclip -o").toString();
         }
-      })
-      .catch((e) => {
-        console.error("Error on app initializing: ", e);
+        const resp = await database.query(selection);
+
+
+        let notify: Notification;
+
+        if (!resp) {
+          notify = new Notification({
+            title: "Not found",
+            body: `${selection} does not match word in dictionary`,
+            icon: nativeImage.createFromPath(
+              app.getAppPath() + "/assets/icon.png"
+            )
+          });
+        } else {
+          notify = new Notification({
+            title: `${resp.word} ${resp.phonetics[0]?.text}`,
+            timeoutType: 'never',
+            body: resp.meanings[0].definitions[0].definition,
+            icon: nativeImage.createFromPath(
+              app.getAppPath() + "/assets/icon.png"
+            )
+          });
+        }
+
+        notify.show();
+
+        notify.addListener("click", (e) => {
+          console.log(e);
+        });
       });
 
+      // Initialize auto-updater in production
+      if (app.isPackaged) {
+        // initAutoUpdater()
+      } else {
+        console.log("Running in development mode - auto-updater disabled");
+      }
+    } catch (e) {
+      console.error("Error on app initializing: ", e);
+    }
     // Quit when all windows are closed, except on macOS. There, it's common
     // for applications and their menu bar to stay active until the user quits
     // explicitly with Cmd + Q.
     app.on("window-all-closed", () => {
       app.dock?.hide();
     });
+
+    // app.on('')
 
     app.on("activate", () => {
       // On OS X it's common to re-create a window in the app when the
@@ -113,13 +125,19 @@ export class AppState {
   }
 
   public static createSettingsWindow() {
-    new BrowserWindow({
+    const settings = new BrowserWindow({
       parent: AppState.mainWindow,
-      width:1000,
-      height:500,
+      width: 1000,
+      height: 500,
       modal: true,
+      webPreferences: {
+        preload: path.join(__dirname, "preload.js"),
+        nodeIntegration: true,
+      },
       frame: false,
-    });    
+    });
+    settings.loadFile(path.join(__dirname, "settings.html"));
+    settings.webContents.openDevTools();
   }
 
   public static getInstance(): AppState {
@@ -135,21 +153,21 @@ export class AppState {
     const context = Menu.buildFromTemplate([
       {
         label: "Show App",
-        role: 'window',
-        click:()=>{
-          app.focus()
-        }
+        role: "window",
+        click: () => {
+          app.focus();
+        },
       },
       {
         label: "Create new Window",
-        role: 'window',
-        click: ()=>{
+        role: "window",
+        click: () => {
           this.createWindow();
-        }
+        },
       },
       {
         label: "Quit",
-        role: 'quit',
+        role: "quit",
         click: () => {
           app.quit();
         },
