@@ -16,6 +16,8 @@ const settingsBtn = document.querySelector(
 
 const container = document.querySelector("div.container") as HTMLDivElement;
 
+const menu = document.querySelector(".menu") as HTMLDivElement;
+
 const messageHTML = (type: "not-found" | "info"): HTMLDivElement => {
   const div = document.createElement("div");
   div.classList.add("message");
@@ -213,23 +215,15 @@ copySearch.addEventListener("click", () => {
   alert("Copied to clipboard");
 });
 
-document.querySelector(".search-input").addEventListener("click", () => {
-  search.focus();
-});
-
-soundSearch.addEventListener("click", () => {
-  const utter = new SpeechSynthesisUtterance();
-  utter.text = search.value;
-  utter.lang = "en-US";
-  speechSynthesis.speak(utter);
-});
-
 clearSearch.addEventListener("click", () => {
   search.value = "";
 });
 
 settingsBtn.addEventListener("click", () => {
-  window.electronAPI.openSettings();
+  // window.electronAPI.openSettings();
+  menu.hidden = menu.hidden ? false : true;
+
+  menu.style.display = menu.style.display === "none" ? "flex" : "none";
 });
 
 document.addEventListener("DOMContentLoaded", () => {
