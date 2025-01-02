@@ -13,6 +13,7 @@ import {
 } from "electron";
 import path from "path";
 import { execSync } from "node:child_process";
+import { readFileSync, writeFileSync } from "node:fs";
 import { initializeIpcHandlers } from "./ipcHandlers";
 // import * as wordnet from "wordnet";
 
@@ -23,233 +24,200 @@ import { initializeIpcHandlers } from "./ipcHandlers";
 })();
 // Right now this specifies a folder where database files will be stored.
 // export const defaultDbFolder = app.getPath('downloads');
-export class AppState {
-  private static instance: AppState | null = null;
-
-  private tray: Tray | null = null;
-
-  static mainWindow: BrowserWindow;
-
-  private icon = nativeImage.createFromPath(
-    app.getAppPath() + "/assets/icon.png"
-  );
-  constructor() {
-    // Handle creating/removing shortcuts on Windows when installing/uninstalling.
-    if (require("electron-squirrel-startup")) {
-      app.quit();
-    }
-
-    global.database = new Database();
-  }
-
-  public static async initApp() {
-    const appState = AppState.getInstance();
-    initializeIpcHandlers();
-
-    try {
-      await app.whenReady();
-      console.log("App is ready");
-      appState.createWindow();
-
-      globalShortcut.register("Control+Shift+W", async () => {
-        /**
-         * Strange behaviour.
-         * 
-         * putting console.log make the global shortcut to respond faster.
-         * without console.log the response delays abit
-         */
-        console.log()
-        let selection: string;
-
-        if (process.platform === "win32") {
-          //todo: add xclip alternate on windows
-        } else {
-          selection = execSync("xclip -o").toString();
-        }
-        const resp = await database.query(selection);
 
 
-        let notify: Notification;
-
-        if (!resp) {
-          notify = new Notification({
-            title: "Not found",
-            body: `${selection} does not match word in dictionary`,
-            icon: nativeImage.createFromPath(
-              app.getAppPath() + "/assets/icon.png"
-            )
-          });
-        } else {
-          notify = new Notification({
-            title: `${resp.word} ${resp.phonetics[0]?.text}`,
-            timeoutType: 'never',
-            body: resp.meanings[0].definitions[0].definition,
-            icon: nativeImage.createFromPath(
-              app.getAppPath() + "/assets/icon.png"
-            )
-          });
-        }
-
-        notify.show();
-
-        notify.addListener("click", (e) => {
-          console.log(e);
-        });
-      });
-
-      // Initialize auto-updater in production
-      if (app.isPackaged) {
-        // initAutoUpdater()
-      } else {
-        console.log("Running in development mode - auto-updater disabled");
-      }
-    } catch (e) {
-      console.error("Error on app initializing: ", e);
-    }
-    // Quit when all windows are closed, except on macOS. There, it's common
-    // for applications and their menu bar to stay active until the user quits
-    // explicitly with Cmd + Q.
-    app.on("window-all-closed", () => {
-      app.dock?.hide();
-    });
-
-    // app.on('')
-
-    app.on("activate", () => {
-      // On OS X it's common to re-create a window in the app when the
-      // dock icon is clicked and there are no other windows open.
-      if (BrowserWindow.getAllWindows().length === 0) {
-        appState.createWindow();
-      }
-    });
-  }
-
-  public static createSettingsWindow() {
-    const settings = new BrowserWindow({
-      parent: AppState.mainWindow,
-      width: 1000,
-      height: 500,
-      modal: true,
-      webPreferences: {
-        preload: path.join(__dirname, "preload.js"),
-        nodeIntegration: true,
-      },
-      frame: false,
-    });
-    settings.loadFile(path.join(__dirname, "settings.html"));
-    settings.webContents.openDevTools();
-  }
-
-  public static getInstance(): AppState {
-    if (!AppState.instance) {
-      AppState.instance = new AppState();
-    }
-    return AppState.instance;
-  }
-
-  private createTray() {
-    this.tray = new Tray(this.icon);
-
-    const context = Menu.buildFromTemplate([
-      {
-        label: "Show App",
-        role: "window",
-        click: () => {
-          app.focus();
-        },
-      },
-      {
-        label: "Create new Window",
-        role: "window",
-        click: () => {
-          this.createWindow();
-        },
-      },
-      {
-        label: "Quit",
-        role: "quit",
-        click: () => {
-          app.quit();
-        },
-      },
-    ]);
-
-    this.tray.setContextMenu(context);
-  }
-
-  public createWindow(): void {
-    if (this.tray === null) {
-      this.createTray();
-    }
-
-    // Create the browser window.
-    AppState.mainWindow = new BrowserWindow({
-      width: 500,
-      height: 800,
-      webPreferences: {
-        preload: path.join(__dirname, "preload.js"),
-        nodeIntegration: true,
-      },
-      resizable: false,
-      icon: this.icon,
-    });
-    // mainWindow.addListener('')
-
-    AppState.mainWindow.setMenuBarVisibility(false);
-
-    if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
-      AppState.mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
-    } else {
-      AppState.mainWindow.loadFile(
-        path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`)
-      );
-    }
-
-    const menuTemplate = Menu.buildFromTemplate([
-      {
-        label: "File",
-        submenu: [
-          { label: "New Window", click: () => console.log("New Window") },
-          {
-            label: "Settings",
-            click: () => {
-              console.log("settings");
-            },
-          },
-          { label: "Quit" },
-          { label: "Hide" },
-        ],
-      },
-      {
-        label: "Edit",
-        submenu: [
-          { label: "Undo", role: "undo" },
-          { label: "Redo", role: "redo" },
-          { type: "separator" },
-          { label: "Copy", role: "copy" },
-          { label: "Paste", role: "paste" },
-        ],
-      },
-      {
-        label: "Help",
-        submenu: [
-          {
-            label: "About",
-            click: () => {
-              // TODO: implement about
-            },
-          },
-        ],
-      },
-    ]);
-
-    Menu.setApplicationMenu(menuTemplate);
-
-    // app.dock.setIcon(nativeImage.createFromPath(app.getAppPath() + '/assets/favicon.png'))    // Open the DevTools.
-    // AppState.mainWindow.webContents.openDevTools();
-
-    app.commandLine.appendSwitch("enable-speech-dispatcher");
-  }
+// Handle creating/removing shortcuts on Windows when installing/uninstalling.
+if (require("electron-squirrel-startup")) {
+  app.quit();
 }
 
-AppState.initApp().catch(console.error);
+const appPath = app.getPath("userData");
+
+const db = path.join(appPath, "dict_en_v2.db");
+
+writeFileSync(db, readFileSync(path.join("dict_en_v2.db")));
+global.database = new Database(db);
+
+initializeIpcHandlers();
+
+const icon = nativeImage.createFromPath(
+  app.getAppPath() + "/assets/icon.png"
+);
+
+let tray: Tray | null;
+
+
+const createTray = () =>{
+  tray = new Tray(icon);
+
+  const context = Menu.buildFromTemplate([
+    {
+      label: "Show App",
+      role: "window",
+      click: () => {
+        app.focus();
+      },
+    },
+    {
+      label: "Create new Window",
+      role: "window",
+      click: () => {
+        createWindow();
+      },
+    },
+    {
+      label: "Quit",
+      role: "quit",
+      click: () => {
+        app.quit();
+      },
+    },
+  ]);
+
+  tray.setContextMenu(context);
+}
+
+const createWindow = ()=> {
+  if (tray === null) {
+    createTray();
+  }
+
+  // Create the browser window.
+  const mainWindow = new BrowserWindow({
+    width: 500,
+    fullscreenable: false,
+    frame: false,
+    useContentSize: true,
+    height: 800,
+    webPreferences: {
+      preload: path.join(__dirname, "preload.js"),
+      nodeIntegration: true,
+    },
+    resizable: false,
+    icon: icon,
+  });
+  // mainWindow.addListener('')
+
+  mainWindow.setMenuBarVisibility(false);
+
+  if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
+    mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
+  } else {
+    mainWindow.loadFile(
+      path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`)
+    );
+  }
+
+  const menuTemplate = Menu.buildFromTemplate([
+    {
+      label: "File",
+      submenu: [
+        { label: "New Window", click: () => console.log("New Window") },
+        {
+          label: "Settings",
+          click: () => {
+            console.log("settings");
+          },
+        },
+        { label: "Quit" },
+        { label: "Hide" },
+      ],
+    },
+    {
+      label: "Edit",
+      submenu: [
+        { label: "Undo", role: "undo" },
+        { label: "Redo", role: "redo" },
+        { type: "separator" },
+        { label: "Copy", role: "copy" },
+        { label: "Paste", role: "paste" },
+      ],
+    },
+    {
+      label: "Help",
+      submenu: [
+        {
+          label: "About",
+          click: () => {
+            // TODO: implement about
+          },
+        },
+      ],
+    },
+  ]);
+
+  Menu.setApplicationMenu(menuTemplate);
+
+  // app.dock.setIcon(nativeImage.createFromPath(app.getAppPath() + '/assets/favicon.png'))    // Open the DevTools.
+  // AppState.mainWindow.webContents.openDevTools();
+
+  app.commandLine.appendSwitch("enable-speech-dispatcher");
+}
+
+
+app.whenReady().then(()=>{
+  console.log("App is ready");
+  createWindow();
+
+  globalShortcut.register("Control+Shift+W", async () => {
+    /**
+     * Strange behaviour.
+     * 
+     * putting console.log make the global shortcut to respond faster.
+     * without console.log the response delays abit
+     */
+    let selection: string;
+
+    if (process.platform === "win32") {
+      //todo: add xclip alternate on windows
+    } else {
+      selection = execSync("xclip -o").toString();
+    }
+    const resp = await database.query(selection);
+
+
+    let notify: Notification;
+
+    if (!resp) {
+      notify = new Notification({
+        title: "Not found",
+        body: `${selection} does not match word in dictionary`,
+        icon: nativeImage.createFromPath(
+          app.getAppPath() + "/assets/icon.png"
+        )
+      });
+    } else {
+      notify = new Notification({
+        title: `${resp.word} ${resp.phonetics[0]?.text}`,
+        timeoutType: 'never',
+        body: resp.meanings[0].definitions[0].definition,
+        icon: nativeImage.createFromPath(
+          app.getAppPath() + "/assets/icon.png"
+        )
+      });
+    }
+
+    notify.show()
+
+}
+
+)})
+
+
+if(app.isPackaged) {
+  // initAutoUpdater()
+} else {
+  console.log("Running in development mode - auto-updater disabled");
+}
+
+app.on("window-all-closed", () => {
+  app.dock?.hide();
+});
+
+app.on("activate", () => {
+  // On OS X it's common to re-create a window in the app when the
+  // dock icon is clicked and there are no other windows open.
+  if (BrowserWindow.getAllWindows().length === 0) {
+    createWindow();
+  }
+});
