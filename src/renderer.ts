@@ -1,22 +1,19 @@
 import { Words } from "../db/words.entity";
 import "./index.css";
 
-const search = document.querySelector(".search-text") as HTMLInputElement;
+const search = document.querySelector(".search-box") as HTMLInputElement;
+const dropdown = document.querySelector(
+  ".dropdown"
+) as HTMLDivElement
 
-const copySearch = document.querySelector(".copy-search") as HTMLButtonElement;
-const clearSearch = document.querySelector(
-  ".clear-search"
-) as HTMLButtonElement;
-const soundSearch = document.querySelector(
-  ".sound-search"
-) as HTMLButtonElement;
-const settingsBtn = document.querySelector(
-  ".settings"
-) as HTMLButtonElement;
 
 const container = document.querySelector("div.container") as HTMLDivElement;
 
 const menu = document.querySelector(".menu") as HTMLDivElement;
+const minimize = document.querySelector('.minimize') as HTMLButtonElement;
+const close = document.querySelector('.close') as HTMLButtonElement;
+
+
 
 const messageHTML = (type: "not-found" | "info"): HTMLDivElement => {
   const div = document.createElement("div");
@@ -52,7 +49,8 @@ const dictionary = (data: Words): HTMLDetailsElement => {
   divPro.style.display = "flex";
   divPro.style.flexDirection = "column";
   divPro.style.alignItems = "start";
-  data.phonetics.forEach((i) => {
+  console.log(data.phonetics)
+  data.phonetics?.forEach((i) => {
     const pronunciation = document.createElement("div");
     pronunciation.classList.add("pronunciation");
     const phonetic = document.createElement("span");
@@ -208,42 +206,33 @@ const createDetails = (div: HTMLDivElement, text: string, open?: boolean) => {
   return details;
 };
 
-copySearch.title = "Copy to clipboard";
-soundSearch.title = "Listen to pronunciation";
-copySearch.addEventListener("click", () => {
-  navigator.clipboard.writeText(search.value);
-  alert("Copied to clipboard");
-});
-
-clearSearch.addEventListener("click", () => {
-  search.value = "";
-});
-
-settingsBtn.addEventListener("click", () => {
+dropdown.addEventListener("click", () => {
   // window.electronAPI.openSettings();
-  menu.hidden = menu.hidden ? false : true;
-
-  menu.style.display = menu.style.display === "none" ? "flex" : "none";
+  menu.classList.toggle('active');
 });
+
+dropdown.addEventListener('blur',()=>{
+  menu.classList.remove('active');
+})
+
+minimize.addEventListener('click', ()=>{
+  window.electronAPI.minimizeWindow()
+})
+
+close.addEventListener('click',()=>{
+  window.electronAPI.closeWindow()
+})
+
+
 
 document.addEventListener("DOMContentLoaded", () => {
   search.spellcheck = true;
-  copySearch.hidden = true;
-  soundSearch.hidden = true;
-  clearSearch.hidden = true;
   container.innerHTML = "";
   container.append(messageHTML("info"));
 });
 
 search.addEventListener("input", () => {
-  if (search.value.length > 0) {
-    copySearch.hidden = false;
-    soundSearch.hidden = false;
-    clearSearch.hidden = false;
-  } else {
-    copySearch.hidden = true;
-    soundSearch.hidden = true;
-    clearSearch.hidden = true;
+  if(search.value.length < 0){
     container.innerHTML = "";
     container.append(messageHTML("info"));
   }

@@ -1,6 +1,4 @@
-import { ipcMain } from "electron";
-import { AppState } from "./main";
-import * as wordnet from "wordnet";
+import { app, ipcMain } from "electron";
 
 
 export function initializeIpcHandlers(): void {
@@ -14,7 +12,13 @@ export function initializeIpcHandlers(): void {
     return resp;
   });
 
-  ipcMain.handle("window:open-settings", async () => {
-    AppState.createSettingsWindow();
-  });
+  ipcMain.handle('window:close', ()=>{
+    app.dock.hide()
+  })
+
+  // ipcMain.emit()
+
+  ipcMain.handle("window:minimize",()=>{
+    app?.hide()
+  })
 }

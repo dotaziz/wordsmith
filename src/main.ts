@@ -13,7 +13,7 @@ import {
 } from "electron";
 import path from "path";
 import { execSync } from "node:child_process";
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync, copyFileSync } from "node:fs";
 import { initializeIpcHandlers } from "./ipcHandlers";
 // import * as wordnet from "wordnet";
 
@@ -35,7 +35,7 @@ const appPath = app.getPath("userData");
 
 const db = path.join(appPath, "dict_en_v2.db");
 
-writeFileSync(db, readFileSync(path.join("dict_en_v2.db")));
+copyFileSync(path.join("dict_en_v2.db"),db)
 global.database = new Database(db);
 
 initializeIpcHandlers();
@@ -78,7 +78,7 @@ const createTray = () =>{
 }
 
 const createWindow = ()=> {
-  if (tray === null) {
+  if (!tray) {
     createTray();
   }
 
@@ -94,6 +94,7 @@ const createWindow = ()=> {
       nodeIntegration: true,
     },
     resizable: false,
+
     icon: icon,
   });
   // mainWindow.addListener('')
@@ -149,7 +150,7 @@ const createWindow = ()=> {
   Menu.setApplicationMenu(menuTemplate);
 
   // app.dock.setIcon(nativeImage.createFromPath(app.getAppPath() + '/assets/favicon.png'))    // Open the DevTools.
-  // AppState.mainWindow.webContents.openDevTools();
+  mainWindow.webContents.openDevTools();
 
   app.commandLine.appendSwitch("enable-speech-dispatcher");
 }
@@ -221,3 +222,4 @@ app.on("activate", () => {
     createWindow();
   }
 });
+
