@@ -1,18 +1,19 @@
 import { DataSource, ILike } from "typeorm";
-import path from 'path'
 import { Words } from "./words.entity";
 
 export class Database {
     private connection: DataSource;
+    private path: string;
 
-    constructor(){
+    constructor(path: string){
+        this.path = path;
         this.init();
     }
 
     private init(){
         const dataSource = new DataSource({
             type: 'sqlite',
-            database: path.join('db','dict_en_v2.db'),
+            database: this.path,
             entities: [Words],
             synchronize: false
         })
