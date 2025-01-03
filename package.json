@@ -37,6 +37,7 @@
   },
   "license": "MIT",
   "dependencies": {
+    "@mistweaverco/electron-forge-plugin-vite": "^7.4.2",
     "electron-squirrel-startup": "^1.0.1",
     "reflect-metadata": "^0.2.2",
     "sqlite3": "^5.1.7",
