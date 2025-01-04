@@ -1,4 +1,5 @@
 # Words
+
 An offline desktop dictionary with hotkey to lookup words.
 
 ## Features
@@ -40,7 +41,6 @@ This will:
 - Start the Vite development server
 - Launch the Electron application
 - Enable hot-reloading for development
-
 
 ## Contributing
 
