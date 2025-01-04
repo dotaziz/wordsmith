@@ -93,3 +93,5 @@ out/
 
 # db for testing
 *.db
+
+dist
