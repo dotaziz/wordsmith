@@ -13,7 +13,7 @@ import {
 } from "electron";
 import path from "path";
 import { execSync } from "node:child_process";
-import { readFileSync, writeFileSync, copyFileSync } from "node:fs";
+import { copyFileSync } from "node:fs";
 import { initializeIpcHandlers } from "./ipcHandlers";
 // import * as wordnet from "wordnet";
 
@@ -101,13 +101,13 @@ const createWindow = ()=> {
 
   mainWindow.setMenuBarVisibility(false);
 
-  if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
-    mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
-  } else {
-    mainWindow.loadFile(
-      path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`)
-    );
-  }
+  // if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
+  //   mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
+  // } else {
+  //   mainWindow.loadFile(
+  //     path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`)
+  //   );
+  // }
 
   const menuTemplate = Menu.buildFromTemplate([
     {
