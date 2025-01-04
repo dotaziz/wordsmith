@@ -1,4 +1,4 @@
-import { Words } from "../db/words.entity";
+import { Words } from "./db/words.entity";
 import "./index.css";
 
 const search = document.querySelector(".search-box") as HTMLInputElement;

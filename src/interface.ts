@@ -1,4 +1,4 @@
-import { Words } from "../db/words.entity";
+import { Words } from "./db/words.entity";
 
 // Types for the exposed Electron API
 export interface ElectronAPI {

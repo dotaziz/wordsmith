@@ -1,6 +1,6 @@
 /* eslint-disable no-var */
 import { ElectronAPI } from "./src/interface";
-import { Database } from "./db/db";
+import { Database } from "./src/db/db";
 
 declare global {
     var database: Database;
