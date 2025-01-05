@@ -7,13 +7,22 @@
   </head>
   <body>
     <header>
-      <div class="header-left">
-        <input type="text" autofocus class="search-box" aria-label="Search" />
+      <button class="history">
+        <img
+          src="assets/icons/history.svg"
+          width="23px"
+          height="23px"
+          title="history"
+          draggable="false"
+        />
+      </button>
 
+      <div class="search-box">
+        <input type="text" autofocus class="search-input" aria-label="Search" />
         <img src="assets/icons/search.svg" width="25px" height="25px" class="search-icon" />
       </div>
 
-      <button tabindex="0" class="dropdown header-btn settings">
+      <button tabindex="0" class="dropdown settings">
         <img src="assets/icons/menu.svg" title="settings" width="24px" draggable="false" />
         <div class="menu">
           <a href="#newwindow" class="menu-item">
@@ -202,17 +211,12 @@
           </a>
         </div>
       </button>
-
-      <div class="header-right">
-        <button class="header-btn minimize">
-          <img src="assets/icons/minimize.svg" title="Minimize" draggable="false" />
-        </button>
-        <button class="header-btn close">
-          <img src="assets/icons/close.svg" title="Close" draggable="false" />
-        </button>
-      </div>
     </header>
-    <div class="container"></div>
+    <div class="container">
+      <div class="message" hidden>
+        <img src="assets/icons/icon.svg" draggable="false" height="400" width="400" />
+      </div>
+    </div>
 
     <script type="module" src="./src/renderer.ts"></script>
   </body>

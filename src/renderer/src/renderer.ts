@@ -1,12 +1,10 @@
 import { Words } from '../../../src/main/db/words.entity'
-const search = document.querySelector('.search-box') as HTMLInputElement
+const search = document.querySelector('.search-input') as HTMLInputElement
 const dropdown = document.querySelector('.dropdown') as HTMLDivElement
 
 const container = document.querySelector('div.container') as HTMLDivElement
 
 const menu = document.querySelector('.menu') as HTMLDivElement
-const minimize = document.querySelector('.minimize') as HTMLButtonElement
-const close = document.querySelector('.close') as HTMLButtonElement
 
 const messageHTML = (type: 'not-found' | 'info'): HTMLDivElement => {
   const div = document.createElement('div')
@@ -34,7 +32,7 @@ const messageHTML = (type: 'not-found' | 'info'): HTMLDivElement => {
   return div
 }
 
-const dictionary = (data: Words): HTMLDetailsElement => {
+const dictionary = (data: Words): HTMLDivElement => {
   const dictSection = document.createElement('div')
   dictSection.classList.add('dictionary')
 
@@ -164,14 +162,14 @@ const dictionary = (data: Words): HTMLDetailsElement => {
   }
 
   dictSection.append(divPro, dictContent)
-  return createDetails(dictSection, 'Dictionary', true)
+  return createDetails(dictSection, 'Dictionary')
 }
 
-const createDetails = (div: HTMLDivElement, text: string, open?: boolean): HTMLDetailsElement => {
+const createDetails = (div: HTMLDivElement, text: string): HTMLDivElement => {
   const summary = document.createElement('summary')
-  const details = document.createElement('details')
+  const details = document.createElement('div')
 
-  details.open = open ? true : false
+  // details.open = open ? true : false
   summary.innerHTML = `
   ${text}
    <svg
@@ -192,7 +190,7 @@ const createDetails = (div: HTMLDivElement, text: string, open?: boolean): HTMLD
           </svg>
   `
 
-  details.append(summary, div)
+  details.append(div)
 
   return details
 }
@@ -204,14 +202,6 @@ dropdown.addEventListener('click', () => {
 
 dropdown.addEventListener('blur', () => {
   menu.classList.remove('active')
-})
-
-minimize.addEventListener('click', () => {
-  window.electronAPI.minimizeWindow()
-})
-
-close.addEventListener('click', () => {
-  window.electronAPI.closeWindow()
 })
 
 document.addEventListener('DOMContentLoaded', () => {
