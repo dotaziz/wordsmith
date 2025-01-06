@@ -7,7 +7,6 @@ export class Database {
   private path: string
 
   constructor(path: string) {
-    console.log(path)
     this.path = path
     this.init()
   }

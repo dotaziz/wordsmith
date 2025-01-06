@@ -8,7 +8,6 @@ export function initializeIpcHandlers(): void {
     //    }).catch(e =>{
     //     console.log(e)
     //    })
-    console.log(resp)
     return resp
   })
   ipcMain.handle('dictionary:history', async () => {
