@@ -11,16 +11,14 @@ import {
   Tray,
   globalShortcut
 } from 'electron'
-import { join } from 'node:path'
+import { join, resolve } from 'node:path'
 import { execSync } from 'node:child_process'
-import { copyFileSync } from 'node:fs'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
-// import icon from '../../resources/icon.png?asset'
 import { initializeIpcHandlers } from './ipcHandlers'
-import { Database } from './db/db'
+import { Database } from './entities/source'
 
 // import * as wordnet from "wordnet";
-;(async () => {
+;(async (): Promise<void> => {
   // await wordnet.init('/home/aziz0x/Downloads/owen/oewn2024');
   // await wordnet.list();
   // console.log(results, "okay")
@@ -33,41 +31,44 @@ if (require('electron-squirrel-startup')) {
   app.quit()
 }
 
-const appPath = app.getPath('userData')
+const getDBPath = (filename: string): string => {
+  let base = app.getAppPath()
+  if (app.isPackaged) {
+    base = base.replace('/app.asar', '')
+  }
+  return resolve(base, `database/${filename}.db`)
+}
 
-const db = join(appPath, 'dict_en_v2.db')
-
-copyFileSync(join('dict_en_v2.db'), db)
-global.database = new Database(db)
+global.database = new Database(getDBPath('dict_en_v2'))
 
 initializeIpcHandlers()
 
-const icon = nativeImage.createFromPath(app.getAppPath() + '../../resources/icon.png')
+const icon = nativeImage.createFromPath(app.getAppPath() + '/resources/icon.png')
 
 let tray: Tray | null
 
-const createTray = () => {
+const createTray = (): void => {
   tray = new Tray(icon)
 
   const context = Menu.buildFromTemplate([
     {
       label: 'Show App',
       role: 'window',
-      click: () => {
+      click: (): void => {
         app.focus()
       }
     },
     {
       label: 'Create new Window',
       role: 'window',
-      click: () => {
+      click: (): void => {
         createWindow()
       }
     },
     {
       label: 'Quit',
       role: 'quit',
-      click: () => {
+      click: (): void => {
         app.quit()
       }
     }
@@ -76,7 +77,7 @@ const createTray = () => {
   tray.setContextMenu(context)
 }
 
-const createWindow = () => {
+const createWindow = (): void => {
   if (!tray) {
     createTray()
   }
@@ -85,7 +86,8 @@ const createWindow = () => {
   const mainWindow = new BrowserWindow({
     width: 500,
     fullscreenable: false,
-    frame: false,
+    // frame: tr,
+    title: undefined,
     height: 800,
     show: false,
     webPreferences: {
@@ -96,7 +98,9 @@ const createWindow = () => {
     ...(process.platform === 'linux' ? { icon } : {})
   })
 
-  mainWindow.on('ready-to-show', () => {
+  mainWindow.setMenuBarVisibility(false)
+
+  mainWindow.on('ready-to-show', (): void => {
     mainWindow.show()
   })
 
@@ -117,12 +121,10 @@ const createWindow = () => {
     {
       label: 'File',
       submenu: [
-        { label: 'New Window', click: () => console.log('New Window') },
+        { label: 'New Window', click: (): void => console.log('New Window') },
         {
           label: 'Settings',
-          click: () => {
-            console.log('settings')
-          }
+          click: (): void => {}
         },
         { label: 'Quit' },
         { label: 'Hide' }
@@ -143,7 +145,7 @@ const createWindow = () => {
       submenu: [
         {
           label: 'About',
-          click: () => {
+          click: (): void => {
             // TODO: implement about
           }
         }
@@ -154,12 +156,12 @@ const createWindow = () => {
   Menu.setApplicationMenu(menuTemplate)
 
   // app.dock.setIcon(nativeImage.createFromPath(app.getAppPath() + '/assets/favicon.png'))    // Open the DevTools.
-  mainWindow.webContents.openDevTools()
+  // mainWindow.webContents.openDevTools()
 
   app.commandLine.appendSwitch('enable-speech-dispatcher')
 }
 
-app.whenReady().then(() => {
+app.whenReady().then((): void => {
   electronApp.setAppUserModelId('com.dotaziz.words')
 
   // Default open or close DevTools by F12 in development
@@ -169,14 +171,14 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  globalShortcut.register('Control+Shift+W', async () => {
+  globalShortcut.register('Control+Shift+W', async (): Promise<void> => {
     /**
      * Strange behaviour.
      *
      * putting console.log make the global shortcut to respond faster.
      * without console.log the response delays abit
      */
-    let selection = execSync('xclip -o').toString()
+    const selection = execSync('xclip -o').toString()
 
     // if (process.platform === 'win32') {
     //   //todo: add xclip alternate on windows
@@ -220,11 +222,11 @@ if (app.isPackaged) {
   console.log('Running in development mode - auto-updater disabled')
 }
 
-app.on('window-all-closed', () => {
+app.on('window-all-closed', (): void => {
   app.dock?.hide()
 })
 
-app.on('activate', () => {
+app.on('activate', (): void => {
   // On OS X it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   if (BrowserWindow.getAllWindows().length === 0) {
