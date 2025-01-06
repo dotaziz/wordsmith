@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "description": "A simple offline dictionary with hotkey to words lookup",
   "main": "./out/main/index.js",
+  "homepage": "https://github.com/dotaziz/words",
   "scripts": {
     "format": "prettier --write .",
     "lint": "eslint . --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",
@@ -41,8 +42,9 @@
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.1",
     "@electron-toolkit/utils": "^3.0.0",
-    "electron-updater": "^6.1.7",
     "electron-squirrel-startup": "^1.0.1",
+    "electron-store": "^10.0.0",
+    "electron-updater": "^6.1.7",
     "reflect-metadata": "^0.2.2",
     "sqlite3": "^5.1.7",
     "typeorm": "^0.3.20",
