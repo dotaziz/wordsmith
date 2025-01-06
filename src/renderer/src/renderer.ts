@@ -1,4 +1,4 @@
-import { Words } from '../../../src/main/db/words.entity'
+import { Words } from '../../main/entities/words.entity'
 const search = document.querySelector('.search-input') as HTMLInputElement
 const dropdown = document.querySelector('.dropdown') as HTMLDivElement
 

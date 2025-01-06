@@ -34,7 +34,7 @@ export class Database {
 
   public async query(word: string): Promise<Words | null> {
     const repo = this.connection.getRepository(Words)
-    await this.addHistory(word)
+    // await this.addHistory(word)
     return repo.findOne({
       where: {
         word: ILike(word.toLowerCase())
@@ -46,10 +46,10 @@ export class Database {
     return this.connection.getRepository(History).find()
   }
 
-  private async addHistory(word: string): Promise<void> {
-    await this.connection.getRepository(History).insert({
-      word: word,
-      createdAt: new Date()
-    })
-  }
+  // private async addHistory(word: string): Promise<void> {
+  //   await this.connection.getRepository(History).insert({
+  //     word: word,
+  //     createdAt: new Date()
+  //   })
+  // }
 }
