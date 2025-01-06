@@ -1,4 +1,4 @@
-import { app, ipcMain } from 'electron'
+import { ipcMain } from 'electron'
 
 export function initializeIpcHandlers(): void {
   ipcMain.handle('dictionary:query', async (_, args) => {
@@ -8,16 +8,10 @@ export function initializeIpcHandlers(): void {
     //    }).catch(e =>{
     //     console.log(e)
     //    })
+    console.log(resp)
     return resp
   })
-
-  ipcMain.handle('window:close', () => {
-    app.dock.hide()
-  })
-
-  // ipcMain.emit()
-
-  ipcMain.handle('window:minimize', () => {
-    app?.hide()
+  ipcMain.handle('dictionary:history', async () => {
+    return database.getHistory()
   })
 }
