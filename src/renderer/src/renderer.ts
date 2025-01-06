@@ -3,34 +3,9 @@ const search = document.querySelector('.search-input') as HTMLInputElement
 const dropdown = document.querySelector('.dropdown') as HTMLDivElement
 
 const container = document.querySelector('div.container') as HTMLDivElement
-
 const menu = document.querySelector('.menu') as HTMLDivElement
-
-const messageHTML = (type: 'not-found' | 'info'): HTMLDivElement => {
-  const div = document.createElement('div')
-  div.classList.add('message')
-  const img = document.createElement('img')
-  const text = document.createElement('div')
-  img.draggable = false
-
-  switch (type) {
-    case 'info':
-      img.src = 'assets/icons/icon.svg'
-      img.height = 400
-      img.width = 400
-      text.textContent = 'Look up definitions of any english term.'
-      break
-    case 'not-found':
-      img.src = 'assets/icons/search.svg'
-      img.height = 300
-      img.width = 300
-      text.textContent = 'No definitions found for the term.'
-      break
-  }
-  div.append(img, text)
-
-  return div
-}
+const sideMenu = document.querySelector('.side-menu') as HTMLDivElement
+const historyBtn = document.querySelector('.history') as HTMLButtonElement
 
 const dictionary = (data: Words): HTMLDivElement => {
   const dictSection = document.createElement('div')
@@ -40,7 +15,6 @@ const dictionary = (data: Words): HTMLDivElement => {
   divPro.style.display = 'flex'
   divPro.style.flexDirection = 'column'
   divPro.style.alignItems = 'start'
-  console.log(data.phonetics)
   data.phonetics?.forEach((i) => {
     const pronunciation = document.createElement('div')
     pronunciation.classList.add('pronunciation')
@@ -164,7 +138,6 @@ const dictionary = (data: Words): HTMLDivElement => {
   dictSection.append(divPro, dictContent)
   return createDetails(dictSection, 'Dictionary')
 }
-
 const createDetails = (div: HTMLDivElement, text: string): HTMLDivElement => {
   const summary = document.createElement('summary')
   const details = document.createElement('div')
@@ -195,25 +168,47 @@ const createDetails = (div: HTMLDivElement, text: string): HTMLDivElement => {
   return details
 }
 
-dropdown.addEventListener('click', () => {
+dropdown.addEventListener('click', async () => {
   // window.electronAPI.openSettings();
   menu.classList.toggle('active')
+})
+
+historyBtn.addEventListener('click', async () => {
+  sideMenu.classList.toggle('active')
+
+  const history = await window.electronAPI.getHistory()
+  const list = document.createElement('ul')
+  list.classList.add('menu-list')
+
+  for (const itm of history) {
+    const li = document.createElement('li')
+    li.classList.add('menu-item')
+    const a = document.createElement('a')
+    a.href = `#${itm.id}`
+    a.textContent = itm.word
+    li.appendChild(a)
+    list.appendChild(li)
+  }
+
+  sideMenu.appendChild(list)
+})
+
+historyBtn.addEventListener('blur', () => {
+  sideMenu.classList.remove('active')
 })
 
 dropdown.addEventListener('blur', () => {
   menu.classList.remove('active')
 })
 
-document.addEventListener('DOMContentLoaded', () => {
-  search.spellcheck = true
-  container.innerHTML = ''
-  container.append(messageHTML('info'))
-})
-
 search.addEventListener('input', () => {
-  if (search.value.length < 0) {
+  if (search.value.length == 0) {
     container.innerHTML = ''
-    container.append(messageHTML('info'))
+    ;(document.querySelector('.message') as HTMLDivElement).style.display = 'block'
+    ;(document.querySelector('#info') as HTMLImageElement).hidden = false
+    ;(document.querySelector('#not-found') as HTMLImageElement).hidden = true
+    ;(document.querySelector('.message>div') as HTMLImageElement).textContent =
+      'Look up definitions of any english term.'
   }
 })
 
@@ -222,9 +217,14 @@ search.addEventListener('keypress', async (e) => {
     container.innerHTML = ''
     const resp = await window.electronAPI.query(search.value)
     if (resp === null) {
-      container.appendChild(messageHTML('not-found'))
+      ;(document.querySelector('.message') as HTMLDivElement).style.display = 'block'
+      ;(document.querySelector('#info') as HTMLImageElement).hidden = true
+      ;(document.querySelector('#not-found') as HTMLImageElement).hidden = false
+      ;(document.querySelector('.message>div') as HTMLImageElement).textContent =
+        'No definitions found for the term.'
       return
     }
+    ;(document.querySelector('.message') as HTMLDivElement).style.display = 'none'
     container.append(dictionary(resp))
   }
 })

@@ -1,3 +1,22 @@
+::-webkit-scrollbar {
+  width: 7px; /* Width of the scrollbar */
+  height: 7px; /* Height of the horizontal scrollbar */
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1; /* Track background color */
+  border-radius: 10px; /* Round corners for the track */
+}
+
+::-webkit-scrollbar-thumb {
+  background: #ccc7c7; /* Scrollbar thumb color */
+  border-radius: 5px; /* Round corners for the thumb */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555; /* Thumb color when hovered */
+}
+
 body {
   font-family: Arial, sans-serif;
   margin: 0;
@@ -15,7 +34,7 @@ header {
   position: fixed;
   top: 0px;
   left: 0px;
-  z-index: 100;
+  z-index: 10;
   right: 1px;
   /* width: 100%; */
   /* margin-right: 10px; */
@@ -71,7 +90,49 @@ header > button {
   margin-right: 8px;
   margin-left: -5px;
   /* padding-right: 20px; */
+}
+.side-menu{
+  display: none;
+  flex-direction: column;
+  /* padding: 20px; */
+  width: 60%;
+  height: 100vh;
+  background-color: #f4f4f4;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  position: absolute;
+  top: -1px;
+  overflow: scroll;
+  left: -1px;
+  z-index: 20;
+  box-shadow: 15px 0px 10px rgba(85, 85, 85, 0.2);
+}
 
+.side-menu .menu-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.side-menu .menu-item {
+  margin: 5px 0;
+}
+
+.side-menu .menu-item a {
+  display: block;
+  text-decoration: none;
+  color: #333;
+  padding: 8px 12px;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.side-menu .menu-item a:hover {
+  background-color: #e0e0e0;
+}
+
+.side-menu .menu-item a:active {
+  background-color: #d0d0d0;
 }
 
 
@@ -85,13 +146,14 @@ header>button:hover{
   display: none;
   flex-direction: column;
   width: 100%;
-  max-width: 250px;
+  max-width: 290px;
   background-color: #f4f4f4;
   border: 1px solid #ccc;
   border-radius: 10px;
   position: absolute;
-  top: 50px;
-  right: 10px;
+  height: fit-content;
+  top: 52px;
+  right: 0px;
   box-shadow: -10px 10px 6px rgba(0, 0, 0, 0.1);
 }
 
@@ -105,6 +167,7 @@ header>button:hover{
   padding: 12px;
   text-align: left;
   color: #333;
+  font-size:medium;
   text-decoration: none;
   border-bottom: 1px solid #ccc;
   transition:
@@ -129,7 +192,7 @@ header>button:hover{
   justify-content: space-evenly;
 }
 .menu-shortcut {
-  font-size: 0.85em;
+  font-size: 14px;
   color: #666;
 }
 .menu-icon svg {

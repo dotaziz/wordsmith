@@ -7,18 +7,20 @@
   </head>
   <body>
     <header>
-      <button class="history">
+      <button class="history sidebar" tabindex="0">
         <img
           src="assets/icons/history.svg"
-          width="23px"
-          height="23px"
+          width="22px"
+          height="22px"
           title="history"
           draggable="false"
         />
+        <div class="side-menu">
+        </div>
       </button>
 
       <div class="search-box">
-        <input type="text" autofocus class="search-input" aria-label="Search" />
+        <input type="text" autofocus spellcheck="true" class="search-input" aria-label="Search" />
         <img src="assets/icons/search.svg" width="25px" height="25px" class="search-icon" />
       </div>
 
@@ -213,9 +215,11 @@
       </button>
     </header>
     <div class="container">
-      <div class="message" hidden>
-        <img src="assets/icons/icon.svg" draggable="false" height="400" width="400" />
-      </div>
+    </div>
+    <div class="message">
+      <img src="assets/icons/icon.svg" id="info" draggable="false" height="400" width="400" />
+      <img src="assets/icons/search.svg" id="not-found" hidden draggable="false" height="400" width="400" />
+      <div>Look up definitions of any english term.</div>
     </div>
 
     <script type="module" src="./src/renderer.ts"></script>
