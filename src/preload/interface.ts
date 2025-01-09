@@ -1,7 +1,5 @@
-import { History } from '../main/entities/history.entity'
-import { Words } from '../main/entities/words.entity'
 export interface ElectronAPI {
-  query: (word: string) => Promise<Words>
+  query: (word: string) => Promise<unknown>
   openSettings: () => void
-  getHistory: () => Promise<History[]>
+  // getHistory: () => Promise<History[]>
 }
