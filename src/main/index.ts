@@ -1,5 +1,3 @@
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and import them here.
 import 'reflect-metadata'
 import {
   app,
@@ -9,37 +7,32 @@ import {
   shell,
   Notification,
   Tray,
-  globalShortcut
+  globalShortcut,
 } from 'electron'
 import { join, resolve } from 'node:path'
 import { execSync } from 'node:child_process'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { initializeIpcHandlers } from './ipcHandlers'
-import { Database } from './entities/source'
-
-// import * as wordnet from "wordnet";
-;(async (): Promise<void> => {
-  // await wordnet.init('/home/aziz0x/Downloads/owen/oewn2024');
-  // await wordnet.list();
-  // console.log(results, "okay")
-})()
-// Right now this specifies a folder where database files will be stored.
-// export const defaultDbFolder = app.getPath('downloads');
+import { fetchAll, setdbPath } from 'sqlite-electron'
+import { Word } from '../interface'
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
   app.quit()
 }
 
-const getDBPath = (filename: string): string => {
-  let base = app.getAppPath()
-  if (app.isPackaged) {
-    base = base.replace('/app.asar', '')
-  }
-  return resolve(base, `database/${filename}.db`)
+let base = app.getAppPath()
+if (app.isPackaged) {
+  base = base.replace('/app.asar', '')
 }
 
-global.database = new Database(getDBPath('dict_en_v2'))
+setdbPath(resolve(base, 'database/dict.db'))
+  .then(() => {
+    console.log('Database initialized')
+  })
+  .catch((e) => {
+    console.log(`Error: ${e}`)
+  })
 
 initializeIpcHandlers()
 
@@ -166,7 +159,7 @@ app.whenReady().then((): void => {
 
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.
-  // see https://github.com/alex8088/electron-toolkit/tree/master/packages/utils
+  // see https://github.com/alex8088/electron-toolkit/tbehaviourree/master/packages/utils
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
   })
@@ -179,16 +172,35 @@ app.whenReady().then((): void => {
      * without console.log the response delays abit
      */
     const selection = execSync('xclip -o').toString()
-
     // if (process.platform === 'win32') {
-    //   //todo: add xclip alternate on windows
+    // //   //todo: add xclip alternate on windows
     // } else {
     //   selection = execSync('xclip -o').toString()
     // }
-    const resp = await database.query(selection)
 
+    let res = (await fetchAll(
+      `
+      SELECT * FROM words 
+      WHERE word = ?
+      `,
+      [selection]
+    )) as object[]
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    res = res.map((i: any) => {
+      return {
+        ...i,
+        forms: JSON.parse(i.forms),
+        senses: JSON.parse(i.senses),
+        sound: JSON.parse(i.sound),
+        etymology: JSON.parse(i.etymology),
+        templates: JSON.parse(i.templates),
+        categories: JSON.parse(i.categories)
+      }
+    })
+
+    const resp = res as Word[]
     let notify: Notification
-
     if (!resp) {
       notify = new Notification({
         title: 'Not found',
@@ -197,13 +209,12 @@ app.whenReady().then((): void => {
       })
     } else {
       notify = new Notification({
-        title: `${resp.word} ${resp.phonetics[0]?.text}`,
+        title: `${resp[0].word} ${(resp[0].sounds ?? [])[0]?.ipa}`,
         timeoutType: 'never',
-        body: resp.meanings[0].definitions[0].definition,
+        body: ((resp[0].senses ?? [])[0].glosses ?? [])[0],
         icon: nativeImage.createFromPath(app.getAppPath() + '/assets/icon.png')
       })
     }
-
     notify.show()
   })
 
