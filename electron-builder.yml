@@ -1,5 +1,6 @@
 appId: com.dotaziz.words
 productName: words
+buildDependenciesFromSource: true
 directories:
   buildResources: build
 files:
@@ -12,7 +13,7 @@ files:
 asarUnpack:
   - resources/**
 extraResources: 
-  - 'database/dict_en_v2.db'
+  - 'database/dict.db'
 win:
   executableName: electron-app
 nsis:
@@ -20,14 +21,6 @@ nsis:
   shortcutName: ${productName}
   uninstallDisplayName: ${productName}
   createDesktopShortcut: always
-mac:
-  entitlementsInherit: build/entitlements.mac.plist
-  extendInfo:
-    - NSCameraUsageDescription: Application requests access to the device's camera.
-    - NSMicrophoneUsageDescription: Application requests access to the device's microphone.
-    - NSDocumentsFolderUsageDescription: Application requests access to the user's Documents folder.
-    - NSDownloadsFolderUsageDescription: Application requests access to the user's Downloads folder.
-  notarize: false
 dmg:
   artifactName: ${name}-${version}.${ext}
 linux:
