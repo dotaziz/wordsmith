@@ -13,7 +13,7 @@ files:
 asarUnpack:
   - resources/**
 extraResources: 
-  - 'database/dict.db'
+  - 'database/dict_en_v2.db'
 win:
   executableName: electron-app
 nsis:
