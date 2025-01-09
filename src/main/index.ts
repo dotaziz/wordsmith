@@ -7,14 +7,13 @@ import {
   shell,
   Notification,
   Tray,
-  globalShortcut,
+  globalShortcut
 } from 'electron'
 import { join, resolve } from 'node:path'
 import { execSync } from 'node:child_process'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
-import { initializeIpcHandlers } from './ipcHandlers'
-import { fetchAll, setdbPath } from 'sqlite-electron'
-import { Word } from '../interface'
+import { initializeIpcHandlers, queryWord } from './ipcHandlers'
+import { setdbPath } from 'sqlite-electron'
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -26,7 +25,7 @@ if (app.isPackaged) {
   base = base.replace('/app.asar', '')
 }
 
-setdbPath(resolve(base, 'database/dict.db'))
+setdbPath(resolve(base, 'database/dict_en_v2.db'))
   .then(() => {
     console.log('Database initialized')
   })
@@ -171,36 +170,13 @@ app.whenReady().then((): void => {
      * putting console.log make the global shortcut to respond faster.
      * without console.log the response delays abit
      */
+
     const selection = execSync('xclip -o').toString()
-    // if (process.platform === 'win32') {
-    // //   //todo: add xclip alternate on windows
-    // } else {
-    //   selection = execSync('xclip -o').toString()
-    // }
 
-    let res = (await fetchAll(
-      `
-      SELECT * FROM words 
-      WHERE word = ?
-      `,
-      [selection]
-    )) as object[]
+    const resp = await queryWord(selection)
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    res = res.map((i: any) => {
-      return {
-        ...i,
-        forms: JSON.parse(i.forms),
-        senses: JSON.parse(i.senses),
-        sound: JSON.parse(i.sound),
-        etymology: JSON.parse(i.etymology),
-        templates: JSON.parse(i.templates),
-        categories: JSON.parse(i.categories)
-      }
-    })
-
-    const resp = res as Word[]
     let notify: Notification
+
     if (!resp) {
       notify = new Notification({
         title: 'Not found',
@@ -209,12 +185,13 @@ app.whenReady().then((): void => {
       })
     } else {
       notify = new Notification({
-        title: `${resp[0].word} ${(resp[0].sounds ?? [])[0]?.ipa}`,
+        title: `${resp.word} ${resp.phonetics[0]?.text}`,
         timeoutType: 'never',
-        body: ((resp[0].senses ?? [])[0].glosses ?? [])[0],
+        body: resp.meanings[0].definitions[0].definition,
         icon: nativeImage.createFromPath(app.getAppPath() + '/assets/icon.png')
       })
     }
+
     notify.show()
   })
 

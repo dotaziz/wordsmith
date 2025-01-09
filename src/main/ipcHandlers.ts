@@ -1,32 +1,31 @@
 import { ipcMain } from 'electron'
-import { fetchAll } from 'sqlite-electron'
-// import { Word } from '../preload/interface'
+import { fetchOne } from 'sqlite-electron'
+import { Word } from '../interface'
 
 export function initializeIpcHandlers(): void {
   ipcMain.handle('dictionary:query', async (_, word: string) => {
-    let resp = (await fetchAll(
-      `
-      SELECT * FROM words 
-      WHERE word = ?
-      `,
-      [word]
-    )) as object[]
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    resp = resp.map((i: any) => {
-      return {
-        ...i,
-        forms: JSON.parse(i.forms),
-        senses: JSON.parse(i.senses),
-        sound: JSON.parse(i.sound),
-        etymology: JSON.parse(i.etymology),
-        templates: JSON.parse(i.templates),
-        categories: JSON.parse(i.categories)
-      }
-    })
-    return resp
+    return queryWord(word)
   })
+
   ipcMain.handle('dictionary:history', async () => {
     // return database.getHistory()
   })
+}
+
+export const queryWord = async (word: string): Promise<Word> => {
+  let resp = (await fetchOne(
+    `
+    SELECT * FROM words 
+    WHERE word = ?
+    `,
+    [word]
+  )) as Word
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  resp = {
+    ...resp,
+    phonetics: JSON.parse(resp.phonetics as unknown as string),
+    meanings: JSON.parse(resp.meanings as unknown as string)
+  }
+  return resp
 }

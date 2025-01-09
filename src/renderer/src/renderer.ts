@@ -1,4 +1,5 @@
-import { Words } from '../../main/entities/words.entity'
+import { Word } from '../../interface'
+
 const search = document.querySelector('.search-input') as HTMLInputElement
 const dropdown = document.querySelector('.dropdown') as HTMLDivElement
 
@@ -7,7 +8,7 @@ const menu = document.querySelector('.menu') as HTMLDivElement
 const sideMenu = document.querySelector('.side-menu') as HTMLDivElement
 const historyBtn = document.querySelector('.history') as HTMLButtonElement
 
-const dictionary = (data: Words): HTMLDivElement => {
+const dictionary = (data: Word): HTMLDivElement => {
   const dictSection = document.createElement('div')
   dictSection.classList.add('dictionary')
 
@@ -176,21 +177,21 @@ dropdown.addEventListener('click', async () => {
 historyBtn.addEventListener('click', async () => {
   sideMenu.classList.toggle('active')
 
-  const history = await window.electronAPI.getHistory()
-  const list = document.createElement('ul')
-  list.classList.add('menu-list')
+  // const history = await window.electronAPI.getHistory()
+  // const list = document.createElement('ul')
+  // list.classList.add('menu-list')
 
-  for (const itm of history) {
-    const li = document.createElement('li')
-    li.classList.add('menu-item')
-    const a = document.createElement('a')
-    a.href = `#${itm.id}`
-    a.textContent = itm.word
-    li.appendChild(a)
-    list.appendChild(li)
-  }
+  // for (const itm of history) {
+  //   const li = document.createElement('li')
+  //   li.classList.add('menu-item')
+  //   const a = document.createElement('a')
+  //   a.href = `#${itm.id}`
+  //   a.textContent = itm.word
+  //   li.appendChild(a)
+  //   list.appendChild(li)
+  // }
 
-  sideMenu.appendChild(list)
+  // sideMenu.appendChild(list)
 })
 
 historyBtn.addEventListener('blur', () => {

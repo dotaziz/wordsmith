@@ -1,42 +1,28 @@
 export interface ElectronAPI {
-  query: (word: string) => Promise<Word[]>
+  query: (word: string) => Promise<Word>
   openSettings: () => void
   // getHistory: () => Promise<History[]>
 }
 
-export interface Word {
-  categories?: string[]
-  forms?: {
-    form: string
-    tags: string[]
-  }[]
-  head_templates?: {
-    args?: {
-      [key: string]: string
-    }
-    expansion?: string
-    name?: string
-  }[]
-  pos: string
-  etymology_text?: string
-  etymology_templates?: {
-    name?: string
-    args?: {
-      [key: string]: string
-    }
-    expansion?: string
-  }[]
-  hyphenation?: string
-  senses?: {
-    glosses?: string[]
-    tags?: string[]
-    examples?: {
-      text: string
-    }[]
-  }[]
-  sounds?: {
-    ipa?: string
-    tags?: string[]
-  }[]
+export type Word = {
   word: string
+  display: string
+  phonetics: Array<{
+    text?: string
+    audio?: string
+    license?: {
+      url?: string
+      name?: string
+    }
+    sourceUrl?: string
+  }>
+  meanings: Array<{
+    partOfSpeech: string
+    definitions: Array<{
+      definition: string
+      example: string
+      synonyms?: string[]
+      antonyms?: string[]
+    }>
+  }>
 }
