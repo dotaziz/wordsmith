@@ -27,7 +27,7 @@ linux:
   target:
     - AppImage
     - snap
-    - deb
+    - pacman
   maintainer: dotaziz
   category: Education
 appImage:
