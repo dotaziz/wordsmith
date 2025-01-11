@@ -177,21 +177,26 @@ dropdown.addEventListener('click', async () => {
 historyBtn.addEventListener('click', async () => {
   sideMenu.classList.toggle('active')
 
-  // const history = await window.electronAPI.getHistory()
-  // const list = document.createElement('ul')
-  // list.classList.add('menu-list')
+  const history = await window.electronAPI.getHistory()
+  const list = document.createElement('ul')
+  list.classList.add('menu-list')
+  sideMenu.innerHTML = ''
+  for (const itm of history) {
+    const li = document.createElement('li')
+    li.classList.add('menu-item')
+    const a = document.createElement('a')
+    a.href = `#${itm.word}`
+    a.textContent = itm.word
 
-  // for (const itm of history) {
-  //   const li = document.createElement('li')
-  //   li.classList.add('menu-item')
-  //   const a = document.createElement('a')
-  //   a.href = `#${itm.id}`
-  //   a.textContent = itm.word
-  //   li.appendChild(a)
-  //   list.appendChild(li)
-  // }
+    li.addEventListener('click', () => {
+      search.value = itm.word
+      search.dispatchEvent(new KeyboardEvent('keypress', { key: 'Enter' }))
+    })
+    li.appendChild(a)
+    list.appendChild(li)
+  }
 
-  // sideMenu.appendChild(list)
+  sideMenu.appendChild(list)
 })
 
 historyBtn.addEventListener('blur', () => {

@@ -1,7 +1,7 @@
 export interface ElectronAPI {
   query: (word: string) => Promise<Word>
   openSettings: () => void
-  // getHistory: () => Promise<History[]>
+  getHistory: () => Promise<SearchHistory>
 }
 
 export type Word = {
@@ -26,3 +26,8 @@ export type Word = {
     }>
   }>
 }
+
+export type SearchHistory = {
+  word: string
+  time: string
+}[]

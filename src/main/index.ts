@@ -14,6 +14,8 @@ import { execSync } from 'node:child_process'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { initializeIpcHandlers, queryWord } from './ipcHandlers'
 import { setdbPath } from 'sqlite-electron'
+import Store from 'electron-store'
+import { SearchHistory } from '../interface'
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -34,6 +36,14 @@ setdbPath(resolve(base, 'database/dict_en_v2.db'))
   })
 
 initializeIpcHandlers()
+
+export const store = new Store<{
+  history: SearchHistory
+}>({
+  defaults: {
+    history: []
+  }
+})
 
 const icon = nativeImage.createFromPath(app.getAppPath() + '/resources/icon.png')
 
